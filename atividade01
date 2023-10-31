@@ -1,0 +1,45 @@
+import java.net.Socket;
+public class EchoServer 
+{
+    public static void main(String[] args) throws Exception 
+    {
+        int port = 4444;
+        ServerSocket serverSocket = new ServerSocket(port);
+        System.err.println("Started server on port " + port);
+        while (true) 
+        {
+            Socket clientSocket = serverSocket.accept();
+            System.err.println("Accepted connection from client");
+            Thread clientThread = new ClientThread(clientSocket);
+            clientThread.start();
+        }
+    }
+}
+
+class ClientThread extends Thread 
+{
+    private Socket socket;
+    public ClientThread(Socket socket) 
+    {
+        this.socket = socket;
+    }
+    public void run() 
+    {
+        try 
+        {
+            In in = new In(socket);
+            Out out = new Out(socket);
+            while (!in.isEmpty()) 
+            {
+                String s = in.readLine();
+                out.println(s);
+            }
+            out.close();
+            in.close();
+            socket.close();
+        } catch (IOException e) 
+        {
+            e.printStackTrace();
+        }
+    }
+}
